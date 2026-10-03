@@ -1,0 +1,117 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Heatwave Watch India</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f3ee;--fg:#1c1b2e;--mut:#6b6a7a;--card:#fffdf9;--ln:#ddd8cf;--acc:#c2410c;--onacc:#fff}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#14131f;--fg:#efece6;--mut:#9c9aab;--card:#1d1c2b;--ln:#33324a;--acc:#fb923c;--onacc:#1c1b2e}}
+:root[data-theme=dark]{--bg:#14131f;--fg:#efece6;--mut:#9c9aab;--card:#1d1c2b;--ln:#33324a;--acc:#fb923c;--onacc:#1c1b2e}
+*{box-sizing:inherit}html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 'Bricolage Grotesque',system-ui,sans-serif}
+main{max-width:1100px;margin:auto;padding:16px 16px 40px}
+h1{font-size:clamp(28px,5vw,44px);line-height:1.05;margin:0 0 6px;font-weight:800;letter-spacing:-.02em}h2{font-size:17px;margin:0 0 8px;font-weight:600}
+.sub,.note{color:var(--mut)}.sub{max-width:62ch;margin:0 0 16px}.note{font-size:13px;margin:8px 0 0}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:14px}
+.kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.kp div,.box{background:var(--card);border:1px solid var(--ln);border-radius:10px;padding:12px 14px}
+.kp b{display:block;font-size:26px;font-weight:800}.kp small{color:var(--mut)}
+.ctl{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:14px}.ctl label{display:flex;gap:8px;align-items:center;flex:1 1 260px}
+input,select,button{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--ln);border-radius:8px;padding:7px 10px}
+input[type=range]{flex:1;accent-color:var(--acc);padding:0}button{cursor:pointer}button.p{background:var(--acc);color:var(--onacc);border-color:var(--acc);font-weight:600}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.g{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:14px;margin-top:14px}@media(max-width:760px){.g{grid-template-columns:1fr}}
+svg{width:100%;height:auto;display:block}.sc{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:5px 6px;border-bottom:1px solid var(--ln);text-align:left}
+.lv{padding:1px 8px;border-radius:99px;color:#fff;font-size:12px}
+.fm{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}.fm label{display:flex;flex-direction:column;font-size:12px;color:var(--mut)}
+.res{font-size:30px;font-weight:800;margin:10px 0 0}.chips{display:flex;gap:6px;flex-wrap:wrap}
+#lg{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));overflow:auto;z-index:9}
+#lg .box{width:100%;max-width:380px;display:flex;flex-direction:column;gap:10px}.tabs{display:flex;gap:6px}.tabs button{flex:1}.tabs .on{background:var(--fg);color:var(--bg)}
+.banner{background:color-mix(in srgb,var(--acc) 12%,var(--card));border:1px solid var(--acc);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:14px}svg circle:focus-visible{outline:2px solid var(--acc);outline-offset:2px}.err{color:#b91c1c;min-height:1.2em;font-size:13px}.hid{display:none!important}
+</style></head><body>
+<div id="lg"><form class="box" id="lf" onsubmit="return false"><h1 style="font-size:30px">Heatwave Watch India</h1><p class="sub" style="margin:0">Log in to save your cities, or continue as a guest.</p>
+<div class="tabs"><button type="button" id="t1" class="on" onclick="tab(1)">Log in</button><button type="button" id="t2" onclick="tab(2)">Sign up</button></div>
+<label>Email<br><input id="em" type="email" autocomplete="username" style="width:100%"></label>
+<label>Password (8+ characters)<br><input id="pw" type="password" autocomplete="current-password" style="width:100%"></label>
+<div class="err" id="er" role="alert"></div><button class="p" id="go" onclick="auth()">Log in</button><button type="button" onclick="enter(null)">Continue as guest</button>
+<p class="note">Accounts are stored in the Postgres database; passwords are hashed on the server.</p></form></div>
+<main class="hid" id="app">
+<div class="bar"><span id="who"></span><span><button onclick="out()">Log out</button></span></div>
+<h1>Heatwave Watch India</h1>
+<p class="sub">Five-day-ahead heatwave risk, computed live in your browser by tree models trained on synthetic 2019–2023 station data. Choose any city, then adjust the inputs to test your own scenario.</p>
+<p class="banner" role="note"><b>Demo with synthetic data.</b> These are not real forecasts and not official IMD warnings. Do not use them for real decisions.</p>
+<div class="kp" id="kp"></div>
+<div class="ctl"><label>City <select id="city" style="flex:1"></select></label><button id="sv" onclick="save()">Save city</button><span class="chips" id="sc"></span></div>
+<div class="ctl hid" id="cu"><label>Latitude <input id="la" type="number" step="0.01" value="19.08"></label><label>Longitude <input id="lo" type="number" step="0.01" value="72.88"></label><button onclick="custom()">Use nearest station</button></div>
+<p class="note" id="near" aria-live="polite" style="margin:-6px 0 12px"></p>
+<div class="ctl"><label>Issue date <input type="range" id="dt" min="0"><b id="dl" style="min-width:100px"></b></label><label>Alert threshold <input type="range" id="th" min="2" max="45" value="11"><b id="tl"></b></label></div>
+<div class="g"><div class="box"><h2 id="ct"></h2><div class="sc"><svg id="ch" viewBox="0 0 600 220" role="img" aria-label="Forecast chart"></svg></div>
+<p class="note">Line: model max-temperature forecast for 5 days after each issue date. Dots: observed. Shaded: observed heatwave days. Dashed red: heatwave chance (scaled to its own peak). Vertical line: issue date. The horizontal axis is the issue date; each point is the temperature on the day 5 days later.</p></div>
+<div class="box"><h2>Try your own conditions</h2><div class="fm" id="fm"></div><div class="res" id="rs" aria-live="polite"></div><p class="note" id="rn"></p></div></div>
+<div class="g"><div class="box"><h2>Risk map (all stations)</h2><svg id="map" viewBox="0 0 400 430" role="img" aria-label="Station risk map"></svg></div>
+<div class="box"><h2>Alert_Logs preview</h2><table id="al" aria-label="Stations at or above the alert threshold"></table><p class="note"><span id="lgc"></span><br>The list is a live SQL query on the forecasts table at your threshold; the trigger copies forecasts at or above the stored threshold into alert_logs. Levels are relative to your threshold (YELLOW at 1×, ORANGE at 1.4×, RED at 2×), not official IMD colour codes.</p></div></div>
+<p class="note" id="ft2"></p>
+</main><script>
+let D,M,n,NS;const $=i=>document.getElementById(i);let pk=-1,sel=0,di=0,user=null,mode=1,cname='',fmKey='';
+const EX=[['Mumbai',19.08,72.88],['Pune',18.52,73.86],['Bengaluru',12.97,77.59],['Chennai',13.08,80.27],['Kolkata',22.57,88.36],['Hyderabad',17.39,78.49],['Ahmedabad',23.02,72.57],['Jaipur',26.91,75.79],['Lucknow',26.85,80.95],['Nagpur',21.15,79.09],['Bhopal',23.26,77.41],['Patna',25.59,85.14]];
+const L=['Max temp °C','Min temp °C','Min humidity %','Wind km/h','Yesterday max °C','2 days ago max °C','7-day avg max °C','Normal max °C'];
+const ls={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+const db=()=>{try{const v=JSON.parse(ls.get('hw_users')||'{}');return v&&typeof v=='object'?v:{}}catch(e){return{}}};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const km=(a,b,c,d)=>{const r=Math.PI/180;return 6371*Math.hypot((d-b)*r*Math.cos((a+c)/2*r),(c-a)*r)};
+function tab(k){mode=k;$('t1').className=k==1?'on':'';$('t2').className=k==2?'on':'';$('go').textContent=k==1?'Log in':'Create account';$('pw').autocomplete=k==1?'current-password':'new-password';$('er').textContent=''}
+async function auth(){const e=$('em').value.trim().toLowerCase(),p=$('pw').value;
+if(!/^\S+@\S+\.\S+$/.test(e))return $('er').textContent='Enter a valid email address.';if(p.length<8)return $('er').textContent='Password must be at least 8 characters.';
+try{const r=await fetch(mode==2?'/api/signup':'/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p})});const j=await r.json();if(!r.ok)return $('er').textContent=j.error||'Something went wrong.';await enter(e)}catch(x){$('er').textContent='Cannot reach the server. Is it running?'}}
+async function enter(e){if(!D){try{D=await(await fetch('/api/data')).json()}catch(x){$('er').textContent='Cannot reach the server. Is it running?';return}M=D.M;n=D.dates.length;NS=D.S.length}
+user=e;saved=e?((await api('/api/cities')).cities||[]):[];$('lg').classList.add('hid');$('app').classList.remove('hid');$('who').textContent=e?'Signed in as '+e:'Guest (cities are not saved)';$('sv').classList.toggle('hid',!e);chips();init()}
+function out(){fetch('/api/logout',{method:'POST'});saved=[];user=null;$('app').classList.add('hid');$('lg').classList.remove('hid');$('pw').value='';$('em').value='';$('sc').innerHTML='';$('who').textContent='';tab(1);$('em').focus()}
+let saved=[],aseq=0,showAll=false;
+async function api(u,o){const r=await fetch(u,o&&{method:o.m,headers:{'Content-Type':'application/json'},body:JSON.stringify(o.b)});return r.json().catch(()=>({}))}
+const LC={RED:'#b91c1c',ORANGE:'#c2410c',YELLOW:'#8a5a0a'};
+async function alerts(){const q=++aseq,t=$('th').value/100,d=D.dates[di];let j;try{j=await(await fetch(`/api/alerts?date=${d}&th=${t}`)).json()}catch(x){$('al').innerHTML='<tr><td>Cannot reach the server.</td></tr>';return}if(q!=aseq)return;
+const o=j.rows,v=showAll?o:o.slice(0,8);
+$('al').innerHTML='<tr><th>Station</th><th>Level</th><th>Prob.</th></tr>'+(o.length?v.map(r=>`<tr><td>${esc(r.name)}</td><td><span class="lv" style="background:${LC[r.level]}">${r.level}</span></td><td>${pc(r.probability)}</td></tr>`).join('')+(o.length>8?`<tr><td colspan=3><button onclick="showAll=!showAll;alerts()">${showAll?'Show top 8':'Show all '+o.length}</button></td></tr>`:''):'<tr><td colspan=3>No alerts at this threshold.</td></tr>');
+$('lgc').textContent=`alert_logs table (filled by the trigger at the stored ${Math.round(j.threshold*100)}% threshold): ${j.logged} rows for this date.`}
+const IND=[[73.8,34.3],[77,34.3],[79,32.8],[78.8,30.8],[81,30.2],[81,28.6],[84,27.4],[88.1,26.6],[88.2,27.9],[89.8,28],[92.1,27],[95.5,28.8],[97.3,28.2],[95.3,26],[94.5,24.2],[93.3,22],[92.3,24],[91.2,25.2],[89.8,25.3],[89,22.3],[87,21.4],[85,19.8],[83,17.6],[80.3,15.5],[80.3,13],[79.9,10.4],[78.2,8.9],[77.5,8],[76.4,9.6],[75,12],[74,15],[73,17.5],[72.8,20],[72.5,21.5],[70.2,20.9],[69,22.3],[68.2,23.6],[70,24.3],[70.8,25.5],[70.2,27.6],[72.3,29.5],[74.6,31.3],[74.6,33.4]];
+const OUT='<polygon points="'+IND.map(([lo,la])=>(20+(lo-68)/22*360).toFixed(1)+','+(410-(la-8)/26*390).toFixed(1)).join(' ')+'" fill="var(--ln)" fill-opacity=".35" stroke="var(--mut)" stroke-width="1"/>';
+function inIndia(la,lo){let c=false;for(let i=0,j=IND.length-1;i<IND.length;j=i++){const[xi,yi]=IND[i],[xj,yj]=IND[j];if((yi>la)!=(yj>la)&&lo<(xj-xi)*(la-yi)/(yj-yi)+xi)c=!c}return c}
+const nearest=(la,lo)=>{let b=0,bd=1e9;D.S.forEach((s,i)=>{const d=(s.lat-la)**2+((s.lon-lo)*Math.cos(la*Math.PI/180))**2;if(d<bd){bd=d;b=i}});return b};
+function chips(){$('sc').innerHTML=saved.map((x,i)=>`<button onclick="goto(${i})">${esc(x.name)}</button><button aria-label="Remove ${esc(x.name)}" onclick="rm(${i})">×</button>`).join('')}
+async function save(){if(!user||saved.some(x=>x.name==cname))return;const j=await api('/api/cities',{m:'POST',b:{name:cname,i:sel,v:$('city').value,la:$('la').value,lo:$('lo').value}});if(j.city)saved.push(j.city);chips()}
+async function rm(i){const c=saved[i];if(!c)return;await api('/api/cities/'+c.id,{m:'DELETE'});saved.splice(i,1);chips()}
+function goto(i){const c=saved[i];if(!c)return;sel=c.i;cname=c.name;
+if(c.v&&[...$('city').options].some(o=>o.value==c.v)){$('city').value=c.v;$('cu').classList.toggle('hid',c.v!='c')}
+if(c.v=='c'){$('la').value=c.la;$('lo').value=c.lo;note(+c.la,+c.lo)}else if(c.v&&c.v[0]=='e'){const e=EX[+c.v.slice(1)];note(e[1],e[2])}else note(null);draw()}
+function note(la,lo){const e=$('near');if(la==null){e.textContent='';return}const s=D.S[sel],d=Math.round(km(la,lo,s.lat,s.lon));e.textContent=d<5?'':`Nearest station: ${s.n}, ${s.s}, ${d} km away.`+(d>150?' That is far away, so treat these numbers as rough.':'')+(s.t==2?' It is a hill station, so hill heatwave limits apply.':'')}
+function pick(i){sel=i;cname=D.S[i].n+', '+D.S[i].s;$('city').value='s'+i;$('cu').classList.add('hid');note(null);draw();const el=$('map').querySelector(`[data-i="${i}"]`);if(el)el.focus({preventScroll:true})}
+function init(){if(!$('city').options.length){$('dt').max=n-1;$('th').value=Math.round(M.th*100);let h='<optgroup label="Weather stations">'+D.S.map((s,i)=>`<option value="s${i}">${s.n}, ${s.s}</option>`).join('')+'</optgroup><optgroup label="Other cities (nearest station)">'+EX.map((c,i)=>`<option value="e${i}">${c[0]}</option>`).join('')+'</optgroup><option value="c">Custom location…</option>';$('city').innerHTML=h;
+let bc=-1;for(let d=0;d<n;d++){let c=0;for(let s=0;s<NS;s++)c+=pred(s,d)[0]>=M.th;if(c>bc){bc=c;di=d}}$('dt').value=di;pk=di;
+$('city').onchange=e=>{const v=e.target.value;$('cu').classList.toggle('hid',v!='c');if(v=='c')return;let la=null,lo=null;if(v[0]=='s')sel=+v.slice(1);else{const c=EX[+v.slice(1)];la=c[1];lo=c[2];sel=nearest(la,lo)}cname=e.target.selectedOptions[0].text;note(la,lo);draw()};
+$('dt').oninput=e=>{di=+e.target.value;draw()};$('th').oninput=draw;$('fm').oninput=what;$('map').onclick=e=>{const c=e.target.closest('circle');if(c)pick(+c.dataset.i)};$('map').onkeydown=e=>{const c=e.target.closest&&e.target.closest('circle');if(c&&(e.key=='Enter'||e.key==' ')){e.preventDefault();pick(+c.dataset.i)}};$('city').value='s0'}
+$('city').onchange({target:$('city')})}
+function custom(){const la=parseFloat($('la').value),lo=parseFloat($('lo').value);if(!isFinite(la)||!isFinite(lo)||la<6||la>37.5||lo<68||lo>98){$('near').textContent='Enter a latitude between 6 and 37.5 and a longitude between 68 and 98 (India).';return}if(!inIndia(la,lo)&&km(la,lo,D.S[nearest(la,lo)].lat,D.S[nearest(la,lo)].lon)>60){$('near').textContent='That point looks outside India (approximate border check). Choose a location inside India.';return}sel=nearest(la,lo);cname='Custom ('+la.toFixed(2)+', '+lo.toFixed(2)+')';note(la,lo);draw()}
+const raw=(s,d)=>D.X.map(m=>m[s][d]);
+function tree(E,x){let s=E.off;for(const[f,th,l,r,v]of E.T){let i=0;while(l[i]!=-1)i=x[f[i]]<=th[i]?l[i]:r[i];s+=E.lr*v[i]}return s}
+function mdl(r,tt){const x=r.concat([r[0]-r[7],tt==0?1:0,tt==1?1:0]);return[1/(1+Math.exp(-tree(D.C,x))),tree(D.R,x)]}
+const cache={};const pred=(s,d)=>cache[s+'_'+d]||(cache[s+'_'+d]=mdl(raw(s,d),D.S[s].t));
+const TH=()=>+$('th').value/100;
+const col=p=>{const r=p/TH();return r>=2?'#b91c1c':r>=1.4?'#ea580c':r>=1?'#f59e0b':r>=.4?'#a3b83c':'#3f8f6b'},lvl=p=>{const r=p/TH();return r>=2?['RED','#b91c1c']:r>=1.4?['ORANGE','#c2410c']:['YELLOW','#8a5a0a']};
+const pc=p=>p<.1?(p*100).toFixed(1)+'%':(p*100).toFixed(0)+'%';
+const f=v=>v==null?'—':(v*100).toFixed(1)+'%';
+function stats(t){let tp=0,fp=0,fn=0;for(let s=0;s<NS;s++)for(let d=0;d<n;d++){const a=pred(s,d)[0]>=t,y=D.Y[s][d];if(a&&y)tp++;else if(a)fp++;else if(y)fn++}return[tp+fp?tp/(tp+fp):null,tp+fn?tp/(tp+fn):null]}
+function draw(){const t=+$('th').value/100,[pr,rc]=stats(t);$('tl').textContent=Math.round(t*100)+'%';$('dl').textContent=D.dates[di];
+$('kp').innerHTML=`<div><b>${f(pr)}</b><small>Precision at ${Math.round(t*100)}%</small></div><div><b>${f(rc)}</b><small>Recall at ${Math.round(t*100)}%</small></div><div><b>${M.auc.toFixed(2)}</b><small>AUC (ranking quality)</small></div><div><b>${M.rmse.toFixed(2)}°C</b><small>Max-temp error, 5 days out (seasonal normals: ${M.rmse_clim.toFixed(2)}°C)</small></div>`;
+$('ft2').textContent=`Models: gradient-boosted trees (heatwave chance and max temperature), scored on 2024 only. Heatwave = IMD-style rule (40°C plains / 37°C coast / 30°C hills with 4.5°C above normal, or 45°C+). Copying today's status forward scores F1 ${M.base_f1.toFixed(2)}; this model scores ${M.f1.toFixed(2)}. Temperature error ${M.rmse.toFixed(2)}°C vs ${M.rmse_clim.toFixed(2)}°C for seasonal normals, so on temperature alone the model does not beat the seasonal normal; its value is in ranking heatwave risk (AUC). Heatwave days are only ${(M.pos/M.n*100).toFixed(1)}% of station-days, so most alerts at low thresholds are false alarms. The highest probability the model ever gives is about 45%. Dataset is synthetic.`;const p0=pred(sel,di);$('ct').textContent=cname+(cname.startsWith(D.S[sel].n)?'':' · '+D.S[sel].n+' station')+(di==pk?' · peak alert day':'');
+const key=sel+'_'+di;if(key!=fmKey){fmKey=key;$('fm').innerHTML=L.map((l,k)=>`<label>${l}<input type="number" step="0.1" id="f${k}" value="${raw(sel,di)[k]}"></label>`).join('')+`<label>Terrain<select id="ft">${['Plains','Coastal','Hilly'].map((x,k)=>`<option value="${k}" ${D.S[sel].t==k?'selected':''}>${x}</option>`).join('')}</select></label>`}
+$('rs').textContent=pc(p0[0])+' chance · '+p0[1].toFixed(1)+'°C';
+let h=OUT;[...Array(NS).keys()].sort((a,b)=>(a==sel)-(b==sel)).forEach(i=>{const s=D.S[i],p=pred(i,di)[0],x=20+(s.lon-68)/22*360,y=410-(s.lat-8)/26*390;h+=`<circle data-i="${i}" tabindex="0" role="button" aria-label="${esc(s.n)}: ${pc(p)} chance" cx="${x}" cy="${y}" r="${i==sel?9:6}" fill="${col(p)}" stroke="${i==sel?'var(--fg)':'var(--card)'}" stroke-width="2" style="cursor:pointer"><title>${esc(s.n)}: ${pc(p)}</title></circle>`});$('map').innerHTML=h;what();
+alerts();chart()}
+function what(){const r=L.map((l,k)=>+$('f'+k).value),d0=D.dates[di];if(r.some(isNaN))return $('rn').textContent='Fill in every field with a number.';
+const bad=r[2]<0||r[2]>100?'Humidity must be between 0 and 100%.':r[3]<0||r[3]>200?'Wind must be between 0 and 200 km/h.':[0,1,4,5,6,7].some(k=>r[k]<-10||r[k]>55)?'Temperatures must be between -10 and 55°C.':r[1]>r[0]?'Min temp cannot be higher than max temp.':'';if(bad){$('rs').textContent='—';return $('rn').textContent=bad}const tt=+$('ft').value,p=mdl(r,tt),dp=r[0]-r[7],hw=(r[0]>=[40,37,30][tt]&&dp>=4.5)||r[0]>=45;$('rs').textContent=pc(p[0])+' chance · '+p[1].toFixed(1)+'°C';$('rn').textContent=(di==pk?'This is the peak alert day of 2024, so expect high numbers. ':'')+(hw?'These readings already meet IMD heatwave criteria. ':'')+(p[0]>=TH()?'At or above the alert threshold: this would write an alert row.':'Below the alert threshold.')}
+function chart(){const F=[...Array(n).keys()].map(d=>pred(sel,d)[1]),A=D.A[sel],Y=D.Y[sel],all=F.concat(A),lo=Math.min(...all),hi=Math.max(...all),X=i=>40+i/(n-1)*550,V=v=>200-(v-lo)/(hi-lo||1)*180;let h='';
+for(let v=Math.ceil(lo/5)*5;v<=hi;v+=5){h+=`<text x="2" y="${V(v)+4}" font-size="11" fill="var(--mut)">${v}°</text><line x1="36" x2="595" y1="${V(v)}" y2="${V(v)}" stroke="var(--ln)"/>`}
+Y.forEach((y,i)=>{if(y)h+=`<rect x="${X(i)-1}" y="10" width="3" height="190" fill="#f59e0b" opacity=".35"/>`});
+h+=`<polyline fill="none" stroke="var(--acc)" stroke-width="1.8" points="${F.map((v,i)=>X(i)+','+V(v)).join(' ')}"/>`;const P=[...Array(n).keys()].map(d=>pred(sel,d)[0]),pm=Math.max(...P,.01);h+=`<polyline fill="none" stroke="#b91c1c" stroke-width="1.2" stroke-dasharray="4 3" opacity=".8" points="${P.map((v,i)=>X(i)+','+(200-v/pm*180)).join(' ')}"/>`;A.forEach((v,i)=>{if(i%3==0)h+=`<circle cx="${X(i)}" cy="${V(v)}" r="1.6" fill="var(--fg)" opacity=".55"/>`});
+h+=`<line x1="${X(di)}" x2="${X(di)}" y1="10" y2="200" stroke="var(--fg)" stroke-width="1.5"/>`;const MN={'01':'Jan','04':'Apr','07':'Jul','10':'Oct'};Object.keys(MN).forEach(mm=>{const i=D.dates.findIndex(x=>x.slice(5)==mm+'-01');if(i>=0)h+=`<text x="${X(i)}" y="216" font-size="11" fill="var(--mut)">${MN[mm]}</text>`});$('ch').setAttribute('aria-label','Forecast vs observed max temperature, '+cname);$('ch').innerHTML=h}
+fetch('/api/me').then(r=>r.json()).then(j=>{if(j.email)enter(j.email)}).catch(()=>{});
+</script></body></html>
